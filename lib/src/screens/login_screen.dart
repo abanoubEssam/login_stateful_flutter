@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login_stateful/src/mixins/validation_mixin.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -7,27 +8,30 @@ class LoginScreen extends StatefulWidget {
   }
 }
 
-class LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> with ValidationMixin{
+  final formKey = GlobalKey<FormState>();
+
+  String? email = '';
+  String? password = '';
+
 
   @override
   Widget build(BuildContext context) {
-    
-
-    
     return Container(
       margin: EdgeInsets.all(20),
       child: SafeArea(
         child: Form(
+            key: formKey,
             child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          // crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            emailField(),
-            passwordField(),
-            SizedBox(height: 20),
-            submitButton(),
-          ],
-        )),
+              mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                emailField(),
+                passwordField(),
+                SizedBox(height: 20),
+                submitButton(),
+              ],
+            )),
       ),
     );
   }
@@ -50,6 +54,11 @@ class LoginScreenState extends State<LoginScreen> {
             elevation: 10,
             borderRadius: BorderRadius.circular(10),
             child: TextFormField(
+              validator: (value) => validateEmail(value),
+              onSaved: (String? value) {
+                email = value;
+                // print(value);
+              },
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 hintText: "you@example.com",
@@ -86,6 +95,10 @@ class LoginScreenState extends State<LoginScreen> {
             elevation: 10,
             borderRadius: BorderRadius.circular(10),
             child: TextFormField(
+              validator: (value) => validatePassword(value),
+              onSaved: (String? value) {
+                password = value;
+              },
               decoration: InputDecoration(
                 hintText: "your password",
                 enabledBorder: OutlineInputBorder(
@@ -114,7 +127,12 @@ class LoginScreenState extends State<LoginScreen> {
           fontSize: 20,
         ),
       ),
-      onPressed: () => print("object"),
+      onPressed: () {
+        if (formKey.currentState?.validate() ?? false) {
+          formKey.currentState?.save();
+          print({"email": email ,"password": password});
+        }
+      },
       child: Text("login"),
     );
   }
